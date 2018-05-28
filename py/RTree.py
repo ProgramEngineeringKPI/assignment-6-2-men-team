@@ -155,7 +155,7 @@ class RTree:
 
     def find_rect(self, x, y, N, node):
         mercator = math.log(math.tan(y/2*math.pi/180 + math.pi/4))
-        xlower, xupper, ylower, yupper = x - N/222., x + N/222., y - N/222.*mercator, y + N/(222.)*mercator
+        xlower, xupper, ylower, yupper = x - N/222., x + N/222., y - N/222.*mercator, y + N/222.*mercator
         print(xlower, xupper, ylower, yupper)
         rect = Rectangle(xlower, xupper, ylower, yupper)
         result = []
