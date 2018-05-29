@@ -24,7 +24,7 @@ class Circle:
         self.x = x
         self.y = y
         self.cos = math.cos(math.pi/180 * x)
-        mercator = math.log(math.tan(y/2*math.pi/180 + math.pi/4))
+        mercator = self.cos
         self.radius = radius/111*mercator
 
     def intersection(self, rect):
@@ -48,18 +48,16 @@ class Circle:
             else: return ((self.x - rect.xlower)**2 + (self.y - rect.ylower)**2 <= self.radius**2)
 
 class RTree:
-    def __init__(self, M=5):
-        self.M = M
+    def __init__(self, N=5):
+        self.N = N
         self.head = None
-        self.size = 0
 
     def insert(self, entry):
-        self.size += 1
         if not self.head:
             self.head = LeafNode([entry])
         else:
             leaf = self.choose_leaf(entry)
-            if len(leaf.elem) < self.M:
+            if len(leaf.elem) < self.N:
                 self.add_child(leaf, entry)
                 self.adjust_bound(leaf)
             elif not leaf.father:
@@ -98,22 +96,22 @@ class RTree:
     def add_child(self, node, child):
         node.add_child(child)
 
-    def adjust_tree(self, L, LL):
-        N, NN, P = L, LL, L.father
-        while len(P.children) > self.M:
-            children_lst = P.children
-            nn = int(len(children_lst) / 2)
-            left_lst, right_lst = children_lst[0:nn], children_lst[nn:]
-            N, NN = Node(left_lst), Node(right_lst)
-            if P.father:
-                P.father.add_child(N)
-                P.father.add_child(NN)
-                P.father.delete_child(P)
+    def adjust_tree(self, leaf, leaf_2):
+        father = leaf.father
+        while len(father.children) > self.N:
+            children = father.children
+            mid = int(len(children)/2)
+            left_children, right_children = children[0:mid], children[mid:]
+            leaf, leaf_2 = Node(left_children), Node(right_children)
+            if father.father:
+                father.father.add_child(leaf)
+                father.father.add_child(leaf_2)
+                father.father.delete_child(father)
             else:
-                self.head = Node([N, NN])
+                self.head = Node([leaf, leaf_2])
                 break
-            P = N.father
-        return P
+            father = leaf.father
+        return father
 
     def adjust_bound(self,leaf):
         rect, father = leaf.rectangle, leaf.father
@@ -123,9 +121,9 @@ class RTree:
             father = father.father
 
     def split_node(self, leaf, entry):
-        l_new = leaf.elem + [entry]
-        ll = int(len(l_new) / 2)
-        left_child, right_child = l_new[0:ll], l_new[ll:]
+        new_entry = leaf.elem + [entry]
+        mid = int(len(new_entry)/2)
+        left_child, right_child = new_entry[0:mid], new_entry[mid:]
         left_leaf, right_leaf = LeafNode(left_child), LeafNode(right_child)
         leaf.father.add_child(left_leaf)
         leaf.father.add_child(right_leaf)
@@ -133,9 +131,9 @@ class RTree:
         return [left_leaf, right_leaf]
 
     def split_head(self, leaf, entry):
-        l_new = leaf.elem + [entry]
-        ll = int(len(l_new) / 2)
-        left_child, right_child = l_new[0:ll], l_new[ll:]
+        new_entry = leaf.elem + [entry]
+        mid = int(len(new_entry)/ 2)
+        left_child, right_child = new_entry[0:mid], new_entry[mid:]
         left_leaf, right_leaf = LeafNode(left_child), LeafNode(right_child)
         return [left_leaf, right_leaf]
 
@@ -155,8 +153,7 @@ class RTree:
 
     def find_rect(self, x, y, N, node):
         mercator = math.log(math.tan(y/2*math.pi/180 + math.pi/4))
-        xlower, xupper, ylower, yupper = x - N/222., x + N/222., y - N/222.*mercator, y + N/222.*mercator
-        print(xlower, xupper, ylower, yupper)
+        xlower, xupper, ylower, yupper = x - N/222, x + N/222, y - N/222*mercator, y + N/222*mercator
         rect = Rectangle(xlower, xupper, ylower, yupper)
         result = []
         if isinstance(node, LeafNode):
@@ -187,7 +184,6 @@ class LeafNode:
         self.elem = elems
         self.father = None
         self.rectangle = self.get_rectangle()
-        self.num = len(elems)
         for elem in elems: elem.father = self
 
     def get_rectangle(self):
@@ -203,13 +199,11 @@ class LeafNode:
     def add_child(self, entry):
         self.elem.append(entry)
         entry.father = self
-        self.num += 1
         self.rectangle = self.get_rectangle()
 
     def delete_child(self, entry):
         self.elem.remove(entry)
         entry.father = None
-        self.num -= 1
         self.rectangle = self.get_rectangle()
 
 class Node:
@@ -217,21 +211,17 @@ class Node:
         self.children = elems
         self.father = None
         self.rectangle = self.get_rectangle()
-        self.num = len(elems)
-        self.order = self.get_order()
         for elem in elems: elem.father = self
 
     def add_child(self, entry):
         self.children.append(entry)
         entry.father = self
         self.rectangle = self.get_rectangle()
-        self.num += 1
 
     def delete_child(self, entry):
         self.children.remove(entry)
         entry.father = None
         self.rectangle = self.get_rectangle()
-        self.num -= 1
 
     def get_rectangle(self):
         if not self.children:
@@ -242,11 +232,3 @@ class Node:
                 new_rect = item.rectangle
                 rect = rect.add_rect(new_rect)
             return rect
-
-    def get_order(self):
-        order, leaf = 0, self
-        while True:
-            leaf = leaf.children[0]
-            order += 1
-            if isinstance(leaf, LeafNode): break
-        return order
