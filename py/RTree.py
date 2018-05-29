@@ -23,9 +23,9 @@ class Circle:
     def __init__(self, x, y, radius):
         self.x = x
         self.y = y
-        self.cos = math.cos(math.pi/180 * x)
-        mercator = self.cos
-        self.radius = radius/111*mercator
+        #self.cos = math.cos(math.pi/180 * x)
+        #mercator = self.cos
+        self.radius = radius/111 #*mercator
 
     def intersection(self, rect):
         if self.x >= rect.xupper:
