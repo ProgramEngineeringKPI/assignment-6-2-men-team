@@ -24,7 +24,7 @@ def parse(input_file):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--input_file', required=False, default='data.csv')
+    parser.add_argument('-f', '--input_file', required=False, default='../data.csv')
     parser.add_argument('-long', '--longitude', required=True, default=None)
     parser.add_argument('-lat', '--latitude', required=True, default=None)
     parser.add_argument('-s', '--size', required=True, default=None)
