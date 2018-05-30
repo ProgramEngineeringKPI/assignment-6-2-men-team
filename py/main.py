@@ -56,7 +56,7 @@ if __name__ == "__main__":
             default_size = 1 # set default serch radius (square)
             res = rtree.find_rect(x, y, default_size, rtree.head) # find all near objects
             objects = [x for x in res if x.type == args.object] # get near objects
-            while len(objects) == 0 or default_size < 15: # increase radius and continue searching
+            while len(objects) == 0 and default_size < 15: # increase radius and continue searching
                 default_size += 3
                 objects = [x for x in res if x.type == args.object]
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
             default_size = 1 # set default serch radius (square)
             res = rtree.find_circle(x, y, size, rtree.head) # find all near objects
             objects = [x for x in res if x.type == args.object] # get near objects
-            while len(objects) == 0 or default_size < 15: # increase radius and continue searching
+            while len(objects) == 0 and default_size < 15: # increase radius and continue searching
                 default_size += 3
                 objects = [x for x in res if x.type == args.object]
 
