@@ -9,15 +9,10 @@ class Rectangle:
         self.area = (xupper - xlower) * (yupper - ylower)
 
     def intersection(self, rect):
-        return (self.xupper >= rect.xlower and rect.xupper >= self.xlower
-                and self.yupper >= rect.ylower and rect.yupper >= self.ylower)
+        return (self.xupper >= rect.xlower and rect.xupper >= self.xlower and self.yupper >= rect.ylower and rect.yupper >= self.ylower)
 
     def add_rect(self, rect):
-        return Rectangle(min(self.xlower, rect.xlower), max(self.xupper, rect.xupper),
-                           min(self.ylower, rect.ylower), max(self.yupper, rect.yupper))
-
-    def copy(self):
-        return Rectangle(self.xlower,self.xupper,self.ylower,self.yupper)
+        return Rectangle(min(self.xlower, rect.xlower), max(self.xupper, rect.xupper), min(self.ylower, rect.ylower), max(self.yupper, rect.yupper))
 
 class Circle:
     def __init__(self, x, y, radius):
