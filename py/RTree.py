@@ -23,27 +23,26 @@ class Circle:
     def __init__(self, x, y, radius):
         self.x = x
         self.y = y
-        #self.cos = math.cos(math.pi/180 * x)
-        #mercator = self.cos
-        self.radius = radius/111 #*mercator
+        mercator = math.log(math.tan(y/2*math.pi/180 + math.pi/4))
+        self.radius = radius/111*mercator
 
     def intersection(self, rect):
         if self.x >= rect.xupper:
-            if self.y > rect.yupper:
+            if self.y >= rect.yupper:
                 return ((self.x - rect.xupper)**2 + (self.y - rect.yupper)**2 <= self.radius**2)
-            elif self.y > rect.ylower and self.y < rect.yupper:
+            elif self.y >= rect.ylower and self.y < rect.yupper:
                 return (self.x - rect.xupper <= self.radius)
             else: return ((self.x - rect.xupper)**2 + (self.y - rect.ylower)**2 <= self.radius**2)
-        elif self.x < rect.xupper and self.x > rect.xlower:
-            if self.y > rect.yupper:
+        elif self.x <= rect.xupper and self.x > rect.xlower:
+            if self.y >= rect.yupper:
                 return (self.y - rect.yupper <= self.radius)
-            elif self.y < rect.yupper and self.y > rect.ylower:
+            elif self.y <= rect.yupper and self.y >= rect.ylower:
                 return True
             else: return (rect.yupper - self.y <= self.radius)
         elif self.x <= rect.xlower:
-            if self.y > rect.yupper:
+            if self.y >= rect.yupper:
                 return ((self.x - rect.xlower)**2 + (self.y - rect.yupper)**2 <= self.radius**2)
-            elif self.y > rect.ylower and self.y < rect.yupper:
+            elif self.y >= rect.ylower and self.y <= rect.yupper:
                 return (rect.xlower - self.x <= self.radius)
             else: return ((self.x - rect.xlower)**2 + (self.y - rect.ylower)**2 <= self.radius**2)
 
@@ -123,7 +122,7 @@ class RTree:
     def split_node(self, leaf, entry):
         new_entry = leaf.elem + [entry]
         mid = int(len(new_entry)/2)
-        left_child, right_child = new_entry[0:mid], new_entry[mid:]
+        left_child, right_child = new_entry[:mid], new_entry[mid:]
         left_leaf, right_leaf = LeafNode(left_child), LeafNode(right_child)
         leaf.father.add_child(left_leaf)
         leaf.father.add_child(right_leaf)
@@ -133,7 +132,7 @@ class RTree:
     def split_head(self, leaf, entry):
         new_entry = leaf.elem + [entry]
         mid = int(len(new_entry)/ 2)
-        left_child, right_child = new_entry[0:mid], new_entry[mid:]
+        left_child, right_child = new_entry[:mid], new_entry[mid:]
         left_leaf, right_leaf = LeafNode(left_child), LeafNode(right_child)
         return [left_leaf, right_leaf]
 
