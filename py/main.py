@@ -78,7 +78,7 @@ if __name__ == "__main__":
                 objects = [x for x in res if x.type == args.object]
 
             # find nearest object
-            distances = [distance(x, y, obj) for obj in objects]
+            distances = map(lambda obj: distance(x, y, obj), objects)
             min_index = distances.index(min(distances))
             nearest = objects[min_index]
 
