@@ -29,11 +29,15 @@ def distance(x, y, object):
 if __name__ == "__main__":
     # add arguments
     parser = argparse.ArgumentParser()
+<<<<<<< HEAD
 <<<<<<< e71f17b39959c6a1f1f84a3593d5df754ae2bdee
     parser.add_argument('-f', '--file', required=False, default='data.csv')
 =======
     parser.add_argument('-f', '--input_file', required=False, default='../data.csv')
 >>>>>>> Repo restructure
+=======
+    parser.add_argument('-f', '--input_file', required=False, default='../data.csv')
+>>>>>>> 0c5dedb96a665f9e98f07edd11441b2c07d7de3e
     parser.add_argument('-long', '--longitude', required=True, default=None)
     parser.add_argument('-lat', '--latitude', required=True, default=None)
     parser.add_argument('-s', '--size', required=False, default=None)
