@@ -29,7 +29,7 @@ def distance(x, y, object):
 if __name__ == "__main__":
     # add arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--file', required=False, default='data.csv')
+    parser.add_argument('-f', '--file', required=False, default='../data.csv')
     parser.add_argument('-long', '--longitude', required=True, default=None)
     parser.add_argument('-lat', '--latitude', required=True, default=None)
     parser.add_argument('-s', '--size', required=False, default=None)

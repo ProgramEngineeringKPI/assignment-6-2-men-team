@@ -1,0 +1,81 @@
+module main;
+
+import std.stdio : writeln;
+import std.csv : csvReader, Malformed;
+import std.getopt : getopt, defaultGetoptPrinter, config;
+import std.file : readText;
+import std.algorithm : map;
+import std.math : log, tan, PI;
+
+import rtree : RTree, Shape, Rect, Circle;
+import place : PlaceData, Place;
+
+enum ShapeType { Rect, Circle }
+enum kmPerDegree = 111;
+
+struct ParsedArgs {
+  string db;
+  float lat;
+  float lon;
+  float size;
+  ShapeType type = ShapeType.Rect;
+  bool help;
+}
+
+void main(string[] args) {
+  try {
+    ParsedArgs parsed = parseArgs(args);
+    if (parsed.help) return;
+
+    RTree!Place tree = new RTree!Place(5);
+    foreach (elem; parsed.db.parseDB) tree ~= elem;
+
+    Place[] data = tree.find(parsed.shapify);
+
+    (data.length ? "Here's what I've found:" : "Looks like there's nothing to show :(").writeln;
+    foreach (i, elem; data) writeln(i + 1, ": ", elem);
+  } catch (Exception e) writeln("Exception was thrown: ", e.msg);
+}
+
+ParsedArgs parseArgs(string[] raw) {
+  ParsedArgs result;
+
+  auto parsed = getopt(
+    raw,
+    config.required,
+    "db", "Database file to parse.", &result.db,
+    config.required,
+    "lat", "Latitude of the search center.", &result.lat,
+    config.required,
+    "long", "Longitude of the search center.", &result.lon,
+    config.required,
+    "size|s", "Search zone radius.", &result.size,
+    "type|t", "Search zone type (Rect by default).", &result.type
+  );
+
+  if (parsed.helpWanted) {
+    defaultGetoptPrinter("Command line arguments:", parsed.options);
+    result.help = true;
+  }
+
+  return result;
+}
+
+auto parseDB(string db) {
+  return db.readText.csvReader!(PlaceData, Malformed.ignore)(';').map!(elem => (
+    new Place(elem)
+  ));
+}
+
+Shape shapify(ParsedArgs args) {
+  real mercator = (args.lat / 2 * PI / 180 + PI / 4).tan.log;
+  if (args.type == ShapeType.Rect)
+    return new Rect(
+      args.lon - args.size / kmPerDegree,
+      args.lon + args.size / kmPerDegree,
+      args.lat + args.size / kmPerDegree * mercator,
+      args.lat - args.size / kmPerDegree * mercator
+    );
+  else // circle
+    return new Circle(args.lon, args.lat, args.size / kmPerDegree * mercator);
+}
