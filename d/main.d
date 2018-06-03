@@ -29,6 +29,7 @@ void main(string[] args) {
     RTree!Place tree = new RTree!Place(5);
     foreach (elem; parsed.db.parseDB) tree ~= elem;
 
+    "Here's what I've found:".writeln;
     foreach (i, elem; tree.find(parsed.shapify)) writeln(i + 1, ": ", elem);
   } catch (Exception e) writeln("Exception was thrown: ", e.msg);
 }
