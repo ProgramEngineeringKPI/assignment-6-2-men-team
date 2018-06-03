@@ -11,6 +11,7 @@ import rtree : RTree, Shape, Rect, Circle;
 import place : PlaceData, Place;
 
 enum ShapeType { Rect, Circle }
+enum kmPerDegree = 111;
 
 struct ParsedArgs {
   string db;
@@ -70,11 +71,11 @@ Shape shapify(ParsedArgs args) {
   real mercator = (args.lat / 2 * PI / 180 + PI / 4).tan.log;
   if (args.type == ShapeType.Rect)
     return new Rect(
-      args.lon - args.size / 111,
-      args.lon + args.size / 111,
-      args.lat + args.size / 111 * mercator,
-      args.lat - args.size / 111 * mercator
+      args.lon - args.size / kmPerDegree,
+      args.lon + args.size / kmPerDegree,
+      args.lat + args.size / kmPerDegree * mercator,
+      args.lat - args.size / kmPerDegree * mercator
     );
   else // circle
-    return new Circle(args.lon, args.lat, args.size / 111 * mercator);
+    return new Circle(args.lon, args.lat, args.size / kmPerDegree * mercator);
 }
