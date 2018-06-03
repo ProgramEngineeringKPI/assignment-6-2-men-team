@@ -29,8 +29,10 @@ void main(string[] args) {
     RTree!Place tree = new RTree!Place(5);
     foreach (elem; parsed.db.parseDB) tree ~= elem;
 
-    "Here's what I've found:".writeln;
-    foreach (i, elem; tree.find(parsed.shapify)) writeln(i + 1, ": ", elem);
+    Place[] data = tree.find(parsed.shapify);
+
+    (data.length ? "Here's what I've found:" : "Looks like there's nothing to show :(").writeln;
+    foreach (i, elem; data) writeln(i + 1, ": ", elem);
   } catch (Exception e) writeln("Exception was thrown: ", e.msg);
 }
 
@@ -47,7 +49,7 @@ ParsedArgs parseArgs(string[] raw) {
     "long", "Longitude of the search center.", &result.lon,
     config.required,
     "size|s", "Search zone radius.", &result.size,
-    "type|t", "Search zone type.", &result.type
+    "type|t", "Search zone type (Rect by default).", &result.type
   );
 
   if (parsed.helpWanted) {
